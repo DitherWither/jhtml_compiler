@@ -32,31 +32,34 @@ function objectToHTML(srcObject: any): string {
 }
 
 function parseAttributes(srcObject: { [key: string]: { value: string } } | undefined): string {
-    if (!srcObject) return "";
-
     const attrs = [];
+    let hasAttrs = false;
+
     for (const key in srcObject) {
+        // these are keys that are not attributes
+        if (key === "$" || key === "body") continue;
         attrs.push(`${key}="${srcObject[key]}"`);
+
+        hasAttrs = true;
     }
+    // if there are no attributes, return an empty string.
+    // This will prevent the output from having a leading space
+    if (!hasAttrs) return "";
+
 
     return " " + attrs.join(" ");
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseTag(srcObject: any): string {
-    let tag = srcObject.tag;
+    const tag = srcObject.$;
 
-    if (!tag) tag = srcObject.e;
+    const attrs = srcObject;
 
-    let attrs = srcObject.attrs;
-    if (!attrs) attrs = srcObject.a;
+    const body = srcObject.body;
 
-    let children = srcObject.children;
-
-    if (!children) children = srcObject.c;
-
-    if (children) {
-        return `<${tag}${parseAttributes(attrs)}>${objectToHTML(children)}</${tag}>`;
+    if (body) {
+        return `<${tag}${parseAttributes(attrs)}>${objectToHTML(body)}</${tag}>`;
     } else {
         return `<${tag}${parseAttributes(attrs)} />`;
     }
