@@ -2,14 +2,14 @@ import JSON5 from 'json5'
 
 export { compile, objectToHTML, parseTag, parseAttributes };
 
-function compile(srcText: string, useHtml5 = true): string {
+function compile(srcText: string, addDoctype = true, doctype = "<!DOCTYPE html>"): string {
     // Parse the source code
     const src = JSON5.parse(srcText);
 
     const out = objectToHTML(src);
 
-    if (useHtml5) {
-        return `<!DOCTYPE html>${out}`;
+    if (addDoctype) {
+        return `${doctype}${out}`;
     }
     return out;
 }
