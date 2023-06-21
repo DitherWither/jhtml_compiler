@@ -4,6 +4,7 @@
 /dist/
 /docs/
 .idea/*
+/tmp/
 
 .DS_Store
 coverage
