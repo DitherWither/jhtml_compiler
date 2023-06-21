@@ -1,0 +1,19 @@
+{
+  "name": "jhtml_compiler",
+  "version": "0.1.0",
+  "description": "jHTML Compiler",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DitherWither",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.60.0",
+    "@typescript-eslint/parser": "^5.60.0",
+    "eslint": "^8.43.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  }
+}
