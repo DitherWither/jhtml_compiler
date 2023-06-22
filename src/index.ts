@@ -101,7 +101,7 @@ function parseAttributes(srcObject: { [key: string]: { value: string } } | undef
 
     for (const key in srcObject) {
         // these are keys that are not attributes, so skip them
-        if (key === "$" || key === "body") continue;
+        if (key === "$" || key === "body" || key === "elem") continue;
 
         // Serialize the value, and add it to the list of attributes
         attrs.push(`${key}="${srcObject[key]}"`);
@@ -125,7 +125,7 @@ function parseAttributes(srcObject: { [key: string]: { value: string } } | undef
  * It will be assumed that the object is a valid HTML tag
  * It will also be assumed that the object is not an array or string
  * 
- * The object must have a `$` property that is the tag name
+ * The object must have a `$` or `elem` property that is the tag name
  * 
  * The object may have a `body` property that is the body of the tag
  * 
@@ -156,7 +156,10 @@ function parseAttributes(srcObject: { [key: string]: { value: string } } | undef
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseTag(srcObject: any): string {
-    const tag = srcObject.$;
+    let tag = srcObject.$;
+    if (!tag) tag = srcObject.elem;
+    if (!tag) throw new Error("Object must have a $ or elem property that is the tag name");
+
     const attrs = srcObject;
     const body = srcObject.body;
 
