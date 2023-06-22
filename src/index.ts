@@ -2,15 +2,56 @@ import JSON5 from 'json5'
 
 export { compile, objectToHTML, parseTag, parseAttributes };
 
+/**
+ * Compiles a source code string into HTML
+ * 
+ * Internally, this parses the json5 source code into an object, and then calls objectToHTML
+ * 
+ * @param srcText The source code to compile
+ * @returns The compiled HTML
+ *  
+ * @example
+ * ```
+ * const src = `
+ * {
+ *    $: "h1",
+ *    body: "Hello World"
+ * }
+ * `;
+ * 
+ * const html = compile(src);
+ * 
+ * console.log(html);
+ * ```
+ * will print `<h1>Hello World</h1>`
+ */
 function compile(srcText: string): string {
-    // Parse the source code
-    const src = JSON5.parse(srcText);
-
-    const out = objectToHTML(src);
-
-    return out;
+    return objectToHTML(JSON5.parse(srcText));
 }
 
+/**
+ * Converts an js object into HTML
+ * 
+ * This can take an object that is a valid jHTML tag, or an array of valid jHTML tags
+ * 
+ * It can also take a string, which will be returned as is. This is useful, as this function is recursive
+ * 
+ * @param srcObject The object to convert
+ * @returns The HTML representation of the object
+ * 
+ * @example
+ * ```
+ * // Notice that unlike the compile function, this function takes an object, not a string
+ * const src = {
+ *   $: "h1",
+ *   body: "Hello World"
+ * };
+ * 
+ * const html = objectToHTML(src);
+ * 
+ * console.log(html);
+ * ```
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function objectToHTML(srcObject: any): string {
     if (!srcObject) return "";
@@ -28,6 +69,28 @@ function objectToHTML(srcObject: any): string {
     return parseTag(srcObject);
 }
 
+/**
+ * Converts an object's attributes into html attributes
+ * 
+ * @param srcObject The object to convert
+ * @returns The HTML attributes in string form
+ * 
+ * @example
+ * ```
+ * // The $ and body properties are ignored, as they are not attributes
+ * const src = {
+ *  $: "h1",
+ *  body: "Hello World",
+ *  class: "title",
+ *  id: "main-title"
+ * };
+ * 
+ * const attrs = parseAttributes(src);
+ * 
+ * console.log(attrs);
+ * ```
+ * will print `class="title" id="main-title"`
+ */
 function parseAttributes(srcObject: { [key: string]: { value: string } } | undefined): string {
     const attrs = [];
     let hasAttrs = false;
@@ -47,6 +110,44 @@ function parseAttributes(srcObject: { [key: string]: { value: string } } | undef
     return " " + attrs.join(" ");
 }
 
+/**
+ * Converts an object into an HTML tag. 
+ * This function is used by the objectToHTML function
+ * 
+ * It recursively calls itself and objectToHTML to convert the body of the tag
+ * 
+ * It will be assumed that the object is a valid HTML tag
+ * It will also be assumed that the object is not an array or string
+ * 
+ * The object must have a `$` property that is the tag name
+ * 
+ * The object may have a `body` property that is the body of the tag
+ * 
+ * The body may be a string, tag, or an array of tags and strings
+ * 
+ * The object may have any other property that is an attribute of the tag
+ * 
+ * You should probably not use this function directly, and instead use objectToHTML
+ * 
+ * @param srcObject The object to convert
+ * @returns The HTML tag
+ * 
+ * @example
+ * ```
+ * // This is a valid jHTML tag
+ * // This CAN NOT be an array or string, and MUST have a $ property
+ * const src = {
+ *  $: "h1",
+ *  body: [
+ *     "Hello ",
+ *     {
+ *         $: "span",
+ *         body: "World"
+ *    }
+ * ],
+ * ```
+ * this will return `<h1>Hello <span>World</span></h1>`
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseTag(srcObject: any): string {
     const tag = srcObject.$;
