@@ -62,10 +62,14 @@ function objectToHTML(srcObject: any): string {
         return srcObject.map(objectToHTML).join("");
     }
 
+    // Return strings as is.
+    // This is useful, as this function is recursive
     if (typeof srcObject === "string") {
+        // TODO: escape the string, and add support for not escaping
         return srcObject;
     }
 
+    // Otherwise, the object is a valid jHTML tag
     return parseTag(srcObject);
 }
 
@@ -96,8 +100,10 @@ function parseAttributes(srcObject: { [key: string]: { value: string } } | undef
     let hasAttrs = false;
 
     for (const key in srcObject) {
-        // these are keys that are not attributes
+        // these are keys that are not attributes, so skip them
         if (key === "$" || key === "body") continue;
+
+        // Serialize the value, and add it to the list of attributes
         attrs.push(`${key}="${srcObject[key]}"`);
 
         hasAttrs = true;
@@ -106,7 +112,7 @@ function parseAttributes(srcObject: { [key: string]: { value: string } } | undef
     // This will prevent the output from having a leading space
     if (!hasAttrs) return "";
 
-
+    // otherwise, return the attributes with a leading space
     return " " + attrs.join(" ");
 }
 
@@ -151,11 +157,18 @@ function parseAttributes(srcObject: { [key: string]: { value: string } } | undef
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseTag(srcObject: any): string {
     const tag = srcObject.$;
-
     const attrs = srcObject;
-
     const body = srcObject.body;
 
+    // the doctype is special, as it doesn't have a closing tag
+    // or end with a slash. It also doesn't have attributes
+    //
+    // And the "html" part of the doctype is not really a attribute,
+    // as it doesn't have a value
+    //
+    // So we will just treat it as a special case
+    //
+    // And setting $ to "!DOCTYPE" is annoying, so just use "doctype"
     if (tag == "doctype") {
         if (body)
             return `<!DOCTYPE ${srcObject.body}>`;
