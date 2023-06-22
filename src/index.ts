@@ -2,15 +2,12 @@ import JSON5 from 'json5'
 
 export { compile, objectToHTML, parseTag, parseAttributes };
 
-function compile(srcText: string, addDoctype = true, doctype = "<!DOCTYPE html>"): string {
+function compile(srcText: string): string {
     // Parse the source code
     const src = JSON5.parse(srcText);
 
     const out = objectToHTML(src);
 
-    if (addDoctype) {
-        return `${doctype}${out}`;
-    }
     return out;
 }
 
@@ -58,9 +55,15 @@ function parseTag(srcObject: any): string {
 
     const body = srcObject.body;
 
-    if (body) {
-        return `<${tag}${parseAttributes(attrs)}>${objectToHTML(body)}</${tag}>`;
-    } else {
-        return `<${tag}${parseAttributes(attrs)} />`;
+    if (tag == "doctype") {
+        if (body)
+            return `<!DOCTYPE ${srcObject.body}>`;
+        else
+            return "<!DOCTYPE html>";
     }
+    if (body)
+        return `<${tag}${parseAttributes(attrs)}>${objectToHTML(body)}</${tag}>`;
+    else
+        return `<${tag}${parseAttributes(attrs)} />`;
+
 }
